@@ -1,11 +1,6 @@
 package it.collections.linkedlist;
 
 public class MyLinkedList<T> {
-
-    private int size;
-    private Node<T> first;
-    private Node<T> last;
-
     public static void main(String[] args) {
         MyLinkedList<Integer> myLinkedList = new MyLinkedList<>();
         myLinkedList.add(1);
@@ -13,12 +8,19 @@ public class MyLinkedList<T> {
         myLinkedList.add(3);
         myLinkedList.add(4);
         myLinkedList.add(5);
-        myLinkedList.remove(4);
+        myLinkedList.moveToFirst(3);
+        myLinkedList.moveToFirst(5);
+        myLinkedList.moveToFirst(4);
+        myLinkedList.remove(1);
 
-        System.out.println("Contains 2? " + myLinkedList.contains(2));
-        System.out.println("Contains 5? " + myLinkedList.contains(5));
-        System.out.println("Get 3rd element? " + myLinkedList.get(10));
+        for(Node<Integer> aNode = myLinkedList.first; aNode != null; aNode = aNode.getNext()) {
+            System.out.println(aNode.getValue());
+        }
     }
+
+    private int size;
+    private Node<T> first;
+    private Node<T> last;
 
     public int size() {
         return size;
@@ -62,26 +64,49 @@ public class MyLinkedList<T> {
         return true;
     }
 
-    public void remove(T value) {
+    public void remove(Node<T> myNode) {
+        if(myNode == first) {
+            myNode.getNext().setPrevious(null);
+            this.first = myNode.getNext();
+        } else if(myNode == last) {
+            myNode.getPrevious().setNext(null);
+            this.last = myNode.getPrevious();
+        } else {
+            myNode.getPrevious().setNext(myNode.getNext());
+            myNode.getNext().setPrevious(myNode.getPrevious());
+        }
+
+    }
+
+    public Node<T> remove(T value) {
         for (Node<T> aNode = first; aNode != null; aNode = aNode.getNext()) {
 
             if (aNode.getValue().equals(value)) {
-                Node<T> prev = aNode.getPrevious();
-                Node<T> next = aNode.getNext();
-
-                if (aNode == first) {
-                    next.setPrevious(null);
-                    first = next;
-                } else if (aNode == last) {
-                    prev.setNext(null);
-                    last = prev;
-                } else {
-                    prev.setNext(next);
-                    next.setPrevious(prev);
-                }
+                remove(aNode);
                 size = size - 1;
-                break;
+                return aNode;
             }
         }
+        return null;
+    }
+
+    public void addToHead(Node<T> myNode) {
+        myNode.setNext(this.first);
+        this.first.setPrevious(myNode);
+        this.first = myNode;
+        this.size = this.size + 1;
+    }
+
+    public void moveToFirst(T value) {
+        Node<T> myNode = remove(value);
+        if(myNode == null) {
+            return;
+        }
+
+        myNode.setNext(this.first);
+        myNode.setPrevious(null);
+
+        this.first.setPrevious(myNode);
+        this.first = myNode;
     }
 }
